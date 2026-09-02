@@ -160,7 +160,7 @@ private:
             }
             if (m_impl->m_VideoModeUpdateCallback) {
                 dsVideoPortResolution_t dsRes;
-                dHdmiInAIDLImpl::aidlVicToRes((int)vic, dsRes);
+                dHdmiInAIDLImpl::aidlVicToRes(vic, dsRes);
                 DeviceSettingsHDMIIn::HDMIVideoPortResolution res;
                 res.name             = "";
                 res.pixelResolution  = static_cast<DeviceSettingsHDMIIn::HDMIInVideoResolution>(dsRes.pixelResolution);
@@ -259,38 +259,292 @@ private:
     }
 
     // Map VIC code to dsVideoPortResolution_t for callback conversion.
-    static void aidlVicToRes(int vic, dsVideoPortResolution_t& res)
+    static void aidlVicToRes(::com::rdk::hal::hdmiinput::VIC vic, dsVideoPortResolution_t& res)
     {
         memset(&res, 0, sizeof(res));
+
+        res.aspectRatio = dsVIDEO_ASPECT_RATIO_16x9;
+        res.stereoScopicMode = dsVIDEO_SSMODE_2D;
         switch (vic) {
-            case 1: case 2: case 3:
+            case VIC::VIC0_UNAVAILABLE:
                 res.pixelResolution = dsVIDEO_PIXELRES_720x480;
-                res.frameRate       = dsVIDEO_FRAMERATE_59dot94; break;
-            case 4:
-                res.pixelResolution = dsVIDEO_PIXELRES_1280x720;
-                res.frameRate       = dsVIDEO_FRAMERATE_59dot94; break;
-            case 5:
-                res.pixelResolution = dsVIDEO_PIXELRES_1920x1080;
-                res.interlaced      = true;
-                res.frameRate       = dsVIDEO_FRAMERATE_59dot94; break;
-            case 16:
-                res.pixelResolution = dsVIDEO_PIXELRES_1920x1080;
-                res.frameRate       = dsVIDEO_FRAMERATE_59dot94; break;
-            case 17: case 18:
+                res.aspectRatio = dsVIDEO_ASPECT_RATIO_4x3;
+                res.stereoScopicMode = dsVIDEO_SSMODE_UNKNOWN;
+                res.frameRate = dsVIDEO_FRAMERATE_UNKNOWN;
+                return;
+
+            case VIC::VIC1_640_480_P_60_4_3:
+            case VIC::VIC2_720_480_P_60_4_3:
+            case VIC::VIC3_720_480_P_60_16_9:
+            case VIC::VIC6_720_1440_480_I_60_4_3:
+            case VIC::VIC7_720_1440_480_I_60_16_9:
+            case VIC::VIC8_720_1440_240_P_60_4_3:
+            case VIC::VIC9_720_1440_240_P_60_16_9:
+            case VIC::VIC10_2880_480_I_60_4_3:
+            case VIC::VIC11_2880_480_I_60_16_9:
+            case VIC::VIC12_2880_240_P_60_4_3:
+            case VIC::VIC13_2880_240_P_60_16_9:
+            case VIC::VIC14_1440_480_P_60_4_3:
+            case VIC::VIC15_1440_480_P_60_16_9:
+            case VIC::VIC35_2880_480_P_60_4_3:
+            case VIC::VIC36_2880_480_P_60_16_9:
+            case VIC::VIC48_720_480_P_120_4_3:
+            case VIC::VIC49_720_480_P_120_16_9:
+            case VIC::VIC50_720_1440_480_I_120_4_3:
+            case VIC::VIC51_720_1440_480_I_120_16_9:
+            case VIC::VIC56_720_480_P_240_4_3:
+            case VIC::VIC57_720_480_P_240_16_9:
+            case VIC::VIC58_720_1440_480_I_240_4_3:
+            case VIC::VIC59_720_1440_480_I_240_16_9:
+                res.pixelResolution = dsVIDEO_PIXELRES_720x480;
+                break;
+
+            case VIC::VIC17_720_576_P_50_4_3:
+            case VIC::VIC18_720_576_P_50_16_9:
+            case VIC::VIC21_720_1440_576_I_50_4_3:
+            case VIC::VIC22_720_1440_576_I_50_16_9:
+            case VIC::VIC23_720_1440_288_P_50_4_3:
+            case VIC::VIC24_720_1440_288_P_50_16_9:
+            case VIC::VIC25_2880_576_I_50_4_3:
+            case VIC::VIC26_2880_576_I_50_16_9:
+            case VIC::VIC27_2880_288_P_50_4_3:
+            case VIC::VIC28_2880_288_P_50_16_9:
+            case VIC::VIC29_1440_576_P_50_4_3:
+            case VIC::VIC30_1440_576_P_50_16_9:
+            case VIC::VIC37_2880_576_P_50_4_3:
+            case VIC::VIC38_2880_576_P_50_16_9:
+            case VIC::VIC42_720_576_P_100_4_3:
+            case VIC::VIC43_720_576_P_100_16_9:
+            case VIC::VIC44_720_1440_576_I_100_4_3:
+            case VIC::VIC45_720_1440_576_I_100_16_9:
+            case VIC::VIC52_720_576_P_200_4_3:
+            case VIC::VIC53_720_576_P_200_16_9:
+            case VIC::VIC54_720_1440_576_I_200_4_3:
+            case VIC::VIC55_720_1440_576_I_200_16_9:
                 res.pixelResolution = dsVIDEO_PIXELRES_720x576;
-                res.frameRate       = dsVIDEO_FRAMERATE_50; break;
-            case 19:
+                break;
+
+            case VIC::VIC4_1280_720_P_60_16_9:
+            case VIC::VIC19_1280_720_P_50_16_9:
+            case VIC::VIC41_1280_720_P_100_16_9:
+            case VIC::VIC47_1280_720_P_120_16_9:
+            case VIC::VIC60_1280_720_P_24_16_9:
+            case VIC::VIC61_1280_720_P_25_16_9:
+            case VIC::VIC62_1280_720_P_30_16_9:
+            case VIC::VIC65_1280_720_P_24_64_27:
+            case VIC::VIC66_1280_720_P_25_64_27:
+            case VIC::VIC67_1280_720_P_30_64_27:
+            case VIC::VIC68_1280_720_P_50_64_27:
+            case VIC::VIC69_1280_720_P_60_64_27:
+            case VIC::VIC70_1280_720_P_100_64_27:
+            case VIC::VIC71_1280_720_P_120_64_27:
+            case VIC::VIC79_1680_720_P_24_64_27:
+            case VIC::VIC80_1680_720_P_25_64_27:
+            case VIC::VIC81_1680_720_P_30_64_27:
+            case VIC::VIC82_1680_720_P_50_64_27:
+            case VIC::VIC83_1680_720_P_60_64_27:
+            case VIC::VIC84_1680_720_P_100_64_27:
+            case VIC::VIC85_1680_720_P_120_64_27:
+            case VIC::VIC108_1280_720_P_48_16_9:
+            case VIC::VIC109_1280_720_P_48_64_27:
+            case VIC::VIC110_1680_720_P_48_64_27:
                 res.pixelResolution = dsVIDEO_PIXELRES_1280x720;
-                res.frameRate       = dsVIDEO_FRAMERATE_50; break;
-            case 31:
+                break;
+
+            case VIC::VIC5_1920_1080_I_60_16_9:
+            case VIC::VIC16_1920_1080_P_60_16_9:
+            case VIC::VIC20_1920_1080_I_50_16_9:
+            case VIC::VIC31_1920_1080_P_50_16_9:
+            case VIC::VIC32_1920_1080_P_24_16_9:
+            case VIC::VIC33_1920_1080_P_25_16_9:
+            case VIC::VIC34_1920_1080_P_30_16_9:
+            case VIC::VIC39_1920_1080_I_50_16_9:
+            case VIC::VIC40_1920_1080_I_100_16_9:
+            case VIC::VIC46_1920_1080_I_120_16_9:
+            case VIC::VIC63_1920_1080_P_120_16_9:
+            case VIC::VIC64_1920_1080_P_100_16_9:
+            case VIC::VIC72_1920_1080_P_24_64_27:
+            case VIC::VIC73_1920_1080_P_25_64_27:
+            case VIC::VIC74_1920_1080_P_30_64_27:
+            case VIC::VIC75_1920_1080_P_50_64_27:
+            case VIC::VIC76_1920_1080_P_60_64_27:
+            case VIC::VIC77_1920_1080_P_100_64_27:
+            case VIC::VIC78_1920_1080_P_120_64_27:
+            case VIC::VIC86_2560_1080_P_24_64_27:
+            case VIC::VIC87_2560_1080_P_25_64_27:
+            case VIC::VIC88_2560_1080_P_30_64_27:
+            case VIC::VIC89_2560_1080_P_50_64_27:
+            case VIC::VIC90_2560_1080_P_60_64_27:
+            case VIC::VIC91_2560_1080_P_100_64_27:
+            case VIC::VIC92_2560_1080_P_120_64_27:
+            case VIC::VIC111_1920_1080_P_48_16_9:
+            case VIC::VIC112_1920_1080_P_48_64_27:
+            case VIC::VIC113_2560_1080_P_48_64_27:
                 res.pixelResolution = dsVIDEO_PIXELRES_1920x1080;
-                res.frameRate       = dsVIDEO_FRAMERATE_50; break;
-            case 93: case 94: case 95: case 96: case 97:
+                break;
+
+            case VIC::VIC93_3840_2160_P_24_16_9:
+            case VIC::VIC94_3840_2160_P_25_16_9:
+            case VIC::VIC95_3840_2160_P_30_16_9:
+            case VIC::VIC96_3840_2160_P_50_16_9:
+            case VIC::VIC97_3840_2160_P_60_16_9:
+            case VIC::VIC103_3840_2160_P_24_64_27:
+            case VIC::VIC104_3840_2160_P_25_64_27:
+            case VIC::VIC105_3840_2160_P_30_64_27:
+            case VIC::VIC106_3840_2160_P_50_64_27:
+            case VIC::VIC107_3840_2160_P_60_64_27:
+            case VIC::VIC114_3840_2160_P_48_16_9:
+            case VIC::VIC116_3840_2160_P_48_64_27:
+            case VIC::VIC117_3840_2160_P_100_16_9:
+            case VIC::VIC118_3840_2160_P_120_16_9:
+            case VIC::VIC119_3840_2160_P_100_64_27:
+            case VIC::VIC120_3840_2160_P_120_64_27:
                 res.pixelResolution = dsVIDEO_PIXELRES_3840x2160;
-                res.frameRate       = (vic >= 96) ? dsVIDEO_FRAMERATE_50 : dsVIDEO_FRAMERATE_25; break;
+                break;
+
+            case VIC::VIC98_4096_2160_P_24_256_135:
+            case VIC::VIC99_4096_2160_P_25_256_135:
+            case VIC::VIC100_4096_2160_P_30_256_135:
+            case VIC::VIC101_4096_2160_P_50_256_135:
+            case VIC::VIC102_4096_2160_P_60_256_135:
+            case VIC::VIC115_4096_2160_P_48_256_135:
+            case VIC::VIC218_4096_2160_P_100_256_135:
+            case VIC::VIC219_4096_2160_P_120_256_135:
+                res.pixelResolution = dsVIDEO_PIXELRES_4096x2160;
+                break;
+
+            case VIC::VIC121_5120_2160_P_24_64_27:
+            case VIC::VIC122_5120_2160_P_25_64_27:
+            case VIC::VIC123_5120_2160_P_30_64_27:
+            case VIC::VIC124_5120_2160_P_48_64_27:
+            case VIC::VIC125_5120_2160_P_50_64_27:
+            case VIC::VIC126_5120_2160_P_60_64_27:
+            case VIC::VIC127_5120_2160_P_100_64_27:
+            case VIC::VIC193_5120_2160_P_120_64_27:
+            case VIC::VIC194_7680_4320_P_24_16_9:
+            case VIC::VIC195_7680_4320_P_25_16_9:
+            case VIC::VIC196_7680_4320_P_30_16_9:
+            case VIC::VIC197_7680_4320_P_48_16_9:
+            case VIC::VIC198_7680_4320_P_50_16_9:
+            case VIC::VIC199_7680_4320_P_60_16_9:
+            case VIC::VIC200_7680_4320_P_100_16_9:
+            case VIC::VIC201_7680_4320_P_120_16_9:
+            case VIC::VIC202_7680_4320_P_24_64_27:
+            case VIC::VIC203_7680_4320_P_25_64_27:
+            case VIC::VIC204_7680_4320_P_30_64_27:
+            case VIC::VIC205_7680_4320_P_48_64_27:
+            case VIC::VIC206_7680_4320_P_50_64_27:
+            case VIC::VIC207_7680_4320_P_60_64_27:
+            case VIC::VIC208_7680_4320_P_100_64_27:
+            case VIC::VIC209_7680_4320_P_120_64_27:
+            case VIC::VIC210_10240_4320_P_24_64_27:
+            case VIC::VIC211_10240_4320_P_25_64_27:
+            case VIC::VIC212_10240_4320_P_30_64_27:
+            case VIC::VIC213_10240_4320_P_48_64_27:
+            case VIC::VIC214_10240_4320_P_50_64_27:
+            case VIC::VIC215_10240_4320_P_60_64_27:
+            case VIC::VIC216_10240_4320_P_100_64_27:
+            case VIC::VIC217_10240_4320_P_120_64_27:
+                // The legacy HDMI-In API has no 5K, 8K, or 10K resolution enum.
+                res.pixelResolution = dsVIDEO_PIXELRES_4096x2160;
+                break;
+        }
+
+        switch (vic) {
+            case VIC::VIC1_640_480_P_60_4_3:
+            case VIC::VIC2_720_480_P_60_4_3:
+            case VIC::VIC6_720_1440_480_I_60_4_3:
+            case VIC::VIC8_720_1440_240_P_60_4_3:
+            case VIC::VIC10_2880_480_I_60_4_3:
+            case VIC::VIC12_2880_240_P_60_4_3:
+            case VIC::VIC14_1440_480_P_60_4_3:
+            case VIC::VIC17_720_576_P_50_4_3:
+            case VIC::VIC21_720_1440_576_I_50_4_3:
+            case VIC::VIC23_720_1440_288_P_50_4_3:
+            case VIC::VIC25_2880_576_I_50_4_3:
+            case VIC::VIC27_2880_288_P_50_4_3:
+            case VIC::VIC29_1440_576_P_50_4_3:
+            case VIC::VIC35_2880_480_P_60_4_3:
+            case VIC::VIC42_720_576_P_100_4_3:
+            case VIC::VIC44_720_1440_576_I_100_4_3:
+            case VIC::VIC48_720_480_P_120_4_3:
+            case VIC::VIC50_720_1440_480_I_120_4_3:
+            case VIC::VIC52_720_576_P_200_4_3:
+            case VIC::VIC54_720_1440_576_I_200_4_3:
+            case VIC::VIC56_720_480_P_240_4_3:
+            case VIC::VIC58_720_1440_480_I_240_4_3:
+                res.aspectRatio = dsVIDEO_ASPECT_RATIO_4x3;
+                break;
             default:
-                res.pixelResolution = dsVIDEO_PIXELRES_1920x1080;
-                res.frameRate       = dsVIDEO_FRAMERATE_60; break;
+                break;
+        }
+
+        switch (vic) {
+            case VIC::VIC5_1920_1080_I_60_16_9:
+            case VIC::VIC6_720_1440_480_I_60_4_3:
+            case VIC::VIC7_720_1440_480_I_60_16_9:
+            case VIC::VIC10_2880_480_I_60_4_3:
+            case VIC::VIC11_2880_480_I_60_16_9:
+            case VIC::VIC20_1920_1080_I_50_16_9:
+            case VIC::VIC21_720_1440_576_I_50_4_3:
+            case VIC::VIC22_720_1440_576_I_50_16_9:
+            case VIC::VIC25_2880_576_I_50_4_3:
+            case VIC::VIC26_2880_576_I_50_16_9:
+            case VIC::VIC39_1920_1080_I_50_16_9:
+            case VIC::VIC40_1920_1080_I_100_16_9:
+            case VIC::VIC44_720_1440_576_I_100_4_3:
+            case VIC::VIC45_720_1440_576_I_100_16_9:
+            case VIC::VIC46_1920_1080_I_120_16_9:
+            case VIC::VIC50_720_1440_480_I_120_4_3:
+            case VIC::VIC51_720_1440_480_I_120_16_9:
+            case VIC::VIC54_720_1440_576_I_200_4_3:
+            case VIC::VIC55_720_1440_576_I_200_16_9:
+            case VIC::VIC58_720_1440_480_I_240_4_3:
+            case VIC::VIC59_720_1440_480_I_240_16_9:
+                res.interlaced = true;
+                break;
+            default:
+                break;
+        }
+
+        const int32_t vicId = static_cast<int32_t>(vic);
+        if ((vicId >= 1 && vicId <= 16) || (vicId >= 35 && vicId <= 36) ||
+            vicId == 69 || vicId == 76 || vicId == 83 || vicId == 90 || vicId == 97 ||
+            vicId == 102 || vicId == 107 || vicId == 126 || vicId == 199 ||
+            vicId == 207 || vicId == 215) {
+            res.frameRate = dsVIDEO_FRAMERATE_60;
+        } else if ((vicId >= 17 && vicId <= 31) || (vicId >= 37 && vicId <= 39) ||
+                   vicId == 68 || vicId == 75 || vicId == 82 || vicId == 89 || vicId == 96 ||
+                   vicId == 101 || vicId == 106 || vicId == 125 || vicId == 198 ||
+                   vicId == 206 || vicId == 214) {
+            res.frameRate = dsVIDEO_FRAMERATE_50;
+        } else if (vicId == 32 || vicId == 60 || vicId == 65 || vicId == 72 || vicId == 79 ||
+                   vicId == 86 || vicId == 93 || vicId == 98 || vicId == 103 || vicId == 121 ||
+                   vicId == 194 || vicId == 202 || vicId == 210) {
+            res.frameRate = dsVIDEO_FRAMERATE_24;
+        } else if (vicId == 33 || vicId == 61 || vicId == 66 || vicId == 73 || vicId == 80 ||
+                   vicId == 87 || vicId == 94 || vicId == 99 || vicId == 104 || vicId == 122 ||
+                   vicId == 195 || vicId == 203 || vicId == 211) {
+            res.frameRate = dsVIDEO_FRAMERATE_25;
+        } else if (vicId == 34 || vicId == 62 || vicId == 67 || vicId == 74 || vicId == 81 ||
+                   vicId == 88 || vicId == 95 || vicId == 100 || vicId == 105 || vicId == 123 ||
+                   vicId == 196 || vicId == 204 || vicId == 212) {
+            res.frameRate = dsVIDEO_FRAMERATE_30;
+        } else if ((vicId >= 40 && vicId <= 45) || vicId == 64 || vicId == 70 || vicId == 77 ||
+                   vicId == 84 || vicId == 91 || vicId == 117 || vicId == 119 || vicId == 127 ||
+                   vicId == 200 || vicId == 208 || vicId == 216 || vicId == 218) {
+            res.frameRate = dsVIDEO_FRAMERATE_100;
+        } else if ((vicId >= 46 && vicId <= 51) || vicId == 63 || vicId == 71 || vicId == 78 ||
+                   vicId == 85 || vicId == 92 || vicId == 118 || vicId == 120 || vicId == 193 ||
+                   vicId == 201 || vicId == 209 || vicId == 217 || vicId == 219) {
+            res.frameRate = dsVIDEO_FRAMERATE_120;
+        } else if (vicId >= 52 && vicId <= 55) {
+            res.frameRate = dsVIDEO_FRAMERATE_200;
+        } else if (vicId >= 56 && vicId <= 59) {
+            res.frameRate = dsVIDEO_FRAMERATE_240;
+        } else if ((vicId >= 108 && vicId <= 116) || vicId == 124 || vicId == 197 ||
+                   vicId == 205 || vicId == 213) {
+            res.frameRate = dsVIDEO_FRAMERATE_UNKNOWN;
         }
     }
 
@@ -851,7 +1105,7 @@ public:
             }
         }
         dsVideoPortResolution_t dsRes;
-        aidlVicToRes(vic, dsRes);
+        aidlVicToRes((::com::rdk::hal::hdmiinput::VIC)vic, dsRes);
         videoPortResolution.name             = "";
         videoPortResolution.pixelResolution  = static_cast<HDMIInVideoResolution>(dsRes.pixelResolution);
         videoPortResolution.aspectRatio      = static_cast<HDMIVideoAspectRatio>(dsRes.aspectRatio);
