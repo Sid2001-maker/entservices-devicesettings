@@ -1,0 +1,12 @@
+#** *****************************************************************************
+# * Copyright 2026 RDK Management
+# * Licensed under the Apache License, Version 2.0 (the "License");
+# * http://www.apache.org/licenses/LICENSE-2.0
+#** ******************************************************************************
+
+hdmiinput:
+  command: signal_status
+  description: Simulate an unstable HDMI signal on port 0.
+  params:
+    port: 0
+    state: UNSTABLE # Possible values: UNKNOWN, NO_SIGNAL, UNSTABLE, NOT_SUPPORTED, LOCKED
