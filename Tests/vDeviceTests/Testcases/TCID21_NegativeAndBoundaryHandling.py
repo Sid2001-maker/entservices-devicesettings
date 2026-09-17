@@ -48,7 +48,12 @@ def run_test():
         ("getRawSPD (portId='foo')", AVInputApis.get_raw_spd_invalid_port),
         ("getSPD (portId='foo')", AVInputApis.get_spd_invalid_port),
         ("getInputDevices (typeOfInput='ABCD')", AVInputApis.get_input_devices_invalid_type),
+        ("getEdid2AllmSupport (portId=99, out of range)", AVInputApis.get_edid2_allm_support(99)),
+        ("setEdid2AllmSupport (portId=99, out of range)", AVInputApis.set_edid2_allm_support(99, True)),
+        ("getGameFeatureStatus (portId=99, out of range)", AVInputApis.get_game_feature_status(99)),
         ("getEdidVersion (portId=99, out of range)", AVInputApis.get_edid_version_out_of_range()),
+        ("getVRRSupport (portId=99, out of range)", AVInputApis.get_vrr_support(99)),
+        ("getVRRFrameRate (portId=99, out of range)", AVInputApis.get_vrr_frame_rate(99)),
         ("startInput (portId=99, out of range)", AVInputApis.start_input_out_of_range()),
         ("setEdidVersion (edidVersion='HDMI9.9')", AVInputApis.set_edid_version_invalid()),
     ]

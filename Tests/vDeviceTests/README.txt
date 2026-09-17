@@ -6,22 +6,18 @@ modelled on the PowerManager L3 vDevice suite.
 
 EXECUTION
 ---------
-cd source_code/AVInput_vDeviceTests
+cd source_code/entservices-devicesettings/Tests/vDeviceTests
 
-with timing   : python3 SuiteManager.py -t avinput
-without timing: python3 SuiteManager.py avinput
-
-Scenario suite (multi-step user journeys):
-  python3 SuiteManager.py avinput_scenarios
-  python3 SuiteManager.py -t avinput_scenarios
+with timing   : python3 SuiteManager.py -t DeviceSettings
+without timing: python3 SuiteManager.py DeviceSettings
 
 Run a single test (repeatable):
-  python3 SuiteManager.py avinput --test TCID03_StartStopInput
-  python3 SuiteManager.py avinput_scenarios --test TCID14_EdidProvisioningWorkflow
+  python3 SuiteManager.py DeviceSettings --test TCID03_StartStopInput
+  python3 SuiteManager.py DeviceSettings --test TCID14_EdidProvisioningWorkflow
 
 Default Actions:
 Plugin activation is done by default before suite execution:
-- avinput -> Controller.1.activate(callsign=org.rdk.AVInput)
+- DeviceSettings -> Controller.1.activate(callsign=org.rdk.AVInput)
 - Init_AVInput_Populate is run to establish a known baseline (reads
   numberOfInputs / getInputDevices and issues a best-effort stopInput).
 
@@ -31,6 +27,7 @@ Disable default activation only if needed:
 ENDPOINTS / DEFAULTS
 --------------------
 - MW JSON-RPC        : http://127.0.0.1:9998/jsonrpc
+- HDMI vComponent   : http://127.0.0.1:8082/api/postKVP
 
 Useful overrides:
 - TARGET_HOST                 (applies to the endpoint)
@@ -40,12 +37,12 @@ Useful overrides:
 Examples:
 
 # inside QEMU guest (services on localhost)
-python3 SuiteManager.py avinput
+python3 SuiteManager.py DeviceSettings
 
 # from host against QEMU target IP
 export TARGET_HOST=127.0.0.1
 export JSONRPC_PORT=9998
-python3 SuiteManager.py avinput
+python3 SuiteManager.py DeviceSettings
 # then forward the port via QEMU:
 #   hostfwd=tcp:127.0.0.1:9998-:9998
 # and set WPEFramework "binding":"0.0.0.0" in /etc/WPEFramework/config.json.
@@ -90,6 +87,8 @@ TCID21_NegativeAndBoundaryHandling- non-numeric + out-of-range portId, unknown
                                    typeOfInput, invalid edidVersion, then health.
 TCID22_DisconnectedPortBehaviour  - locks in graceful degradation on a port with
                                    no source (empty video mode, not errors).
+TCID23_AidlEventCoverage          - injects connection, signal, VIC, VRR, AVI,
+                                   audio, SPD, DRM, VSIF, and HDCP events.
 
 VERIFIED JSON-RPC CONTRACT
 --------------------------
@@ -118,11 +117,11 @@ Known vDevice behaviours the scenarios accommodate:
 
 NOTE ON ASYNC EVENTS
 --------------------
-vComponent-driven stimulus (connection/signal/format/InfoFrame YAML posts) has
-been removed from this suite: the postKVP-driven YAML files under
-vcomponent_configurations/commands/ produced no guaranteed response, so tests
-relying on them (former TCID03/04/06/11/12/13) were dropped. Remaining cases
-exercise only direct JSON-RPC getters/setters against the plugin.
+TCID23 posts connection, signal, video format, VRR, and InfoFrame stimuli to
+the HDMI Input vComponent. JSON is sent as valid YAML directly to postKVP, so
+the test does not depend on local command-template files. Some vComponent
+builds apply a command and close the connection without a response; curl error
+52 is therefore treated as accepted by the transport helper.
 
 NOTES
 -----

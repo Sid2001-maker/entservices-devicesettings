@@ -38,12 +38,18 @@ import time
 from pathlib import Path
 import os
 
-from utils import log_error, log_info, log_success, WPEFRAMEWORK_JSONRPC_URL, activate_plugin
+from utils import (
+    activate_plugin,
+    log_error,
+    log_info,
+    log_success,
+    WPEFRAMEWORK_JSONRPC_URL,
+)
 
 
 BASE_DIR = Path(__file__).resolve().parent
 SUITES = {
-    "avinput": {
+    "DeviceSettings": {
         "banner": "******************** L3 SUITE - RDK - AV INPUT (HDMI IN) **********************",
         "module_dir": BASE_DIR / "Testcases",
         "tests": [
@@ -71,21 +77,22 @@ SUITES = {
             "TCID20_AudioMixingWorkflow",
             "TCID21_NegativeAndBoundaryHandling",
             "TCID22_DisconnectedPortBehaviour",
+            "TCID23_AidlEventCoverage",
         ],
     },
 }
 
 # Maps test suite names to their corresponding RDK plugin callsigns for activation.
 SUITE_PLUGIN_CALLSIGNS = {
-    "avinput": "org.rdk.AVInput",
+    "DeviceSettings": "org.rdk.AVInput",
 }
 
 SUITE_PREREQUISITE_CALLSIGNS = {
-    "avinput": ["org.rdk.DeviceSettings"],
+    "DeviceSettings": ["org.rdk.DeviceSettings"],
 }
 
 SUITE_INIT_MODULES = {
-    "avinput": "Init_AVInput_Populate",
+    "DeviceSettings": "Init_AVInput_Populate",
 }
 
 
