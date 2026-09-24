@@ -231,6 +231,47 @@ def send_vcomponent_command(yaml_file_path):
         return 0, f"Exception in send_vcomponent_command: {exc}"
 
 
+def send_vcomponent_payload(command, params):
+    """Post one HDMI Input command to the vComponent control endpoint."""
+    payload = {
+        "hdmiinput": {
+            "command": command,
+            "params": params,
+        }
+    }
+    cmd = [
+        "curl", "-sS", "-w", "\n%{http_code}",
+        "-X", "POST",
+        "-H", "Content-Type: application/x-yaml",
+        "--data-binary", "@-",
+        HDMIIN_VCOMPONENT_API_URL,
+    ]
+    try:
+        result = subprocess.run(
+            cmd,
+            input=json.dumps(payload),
+            check=False,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+        stdout = result.stdout or ""
+        body, separator, http_code_text = stdout.rpartition("\n")
+        if not separator:
+            body, http_code_text = stdout.strip(), "0"
+        try:
+            http_code = int(http_code_text.strip())
+        except ValueError:
+            http_code = 0
+        if http_code == 0 and result.returncode == 52:
+            return 200, "Empty reply from server (accepted)"
+        if http_code == 0 and result.stderr.strip():
+            body = result.stderr.strip()
+        return http_code, body
+    except Exception as exc:
+        return 0, f"Exception in send_vcomponent_payload: {exc}"
+
+
 def parse_result(curl_response):
     """Parse a JSON-RPC curl response string and return the 'result' field.
     Returns None on transport/parse error or when no result field is present.
