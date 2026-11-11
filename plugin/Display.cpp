@@ -27,6 +27,24 @@
 
 #include "secure_wrapper.h"
 #include "Display.h"
+#ifdef ENABLE_DISPLAY_AIDL
+#include "HalFactoryUtility.h"
+#include "hal/dDisplayAIDL.h"
+#include <com/rdk/hal/hdmioutput/IHDMIOutputManager.h>
+#endif
+
+Display Display::Create(INotification& parent)
+{
+    ENTRY_LOG;
+#ifdef ENABLE_DISPLAY_AIDL
+    if (HalFactoryUtility::isAidlServiceAvailable(android::String16(com::rdk::hal::hdmioutput::IHDMIOutputManager::serviceName().c_str()))) {
+        DSLOG_INFO("Using HDMI Output AIDL HAL");
+        return Display(parent, std::make_shared<dDisplayAIDLImpl>());
+    }
+#endif
+    DSLOG_INFO("Using legacy Display DS HAL");
+    return Display(parent, std::make_shared<DefaultImpl>());
+}
 
 Display::Display(INotification& parent, std::shared_ptr<IPlatform> platform)
     : _platform(std::move(platform))

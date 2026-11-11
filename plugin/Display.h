@@ -79,6 +79,9 @@ public:
     void OnDisplayHDCPStatus(const int32_t hdcpStatus);
     void OnDisplayHDMIHotPlug(const DisplayEvent displayEvent);
 
+    /** Runtime factory: picks the AIDL HDMI Output HAL when available, otherwise the legacy DS HAL. */
+    static Display Create(INotification& parent);
+
     template <typename IMPL = DefaultImpl, typename... Args>
     static Display Create(INotification& parent, Args&&... args)
     {
@@ -102,7 +105,7 @@ public:
 
 public:
     /** Deferred HAL init — called from DeviceSettingsImp::Configure() */
-    void InitialiseHAL() { std::static_pointer_cast<DefaultImpl>(_platform)->InitialiseHAL(); }
+    void InitialiseHAL() { platform().InitialiseHAL(); }
 
     INotification& _parent;
 };

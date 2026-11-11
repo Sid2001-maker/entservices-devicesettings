@@ -223,6 +223,62 @@ else()
     message(STATUS "HDMI Output AIDL HAL artifacts not found; VideoPort/VideoDevice will use DS HAL only")
 endif()
 
+# Display AIDL (dDisplayAIDLImpl) is built on the HDMI Output HAL plus the Panel HAL
+# (IPanelOutput.getFactoryInterface). IPanelOutput references videodecoder::DynamicRange.
+find_path(PANEL_AIDL_INCLUDE_DIR
+    NAMES com/rdk/hal/panel/IPanelOutput.h
+    PATHS ${CMAKE_SYSROOT}/usr/include
+    PATH_SUFFIXES
+        mw/panel/0.1.0.0/include
+        vendor/panel/0.1.0.0/include)
+find_path(VIDEODECODER_AIDL_INCLUDE_DIR
+    NAMES com/rdk/hal/videodecoder/DynamicRange.h
+    PATHS ${CMAKE_SYSROOT}/usr/include
+    PATH_SUFFIXES
+        mw/videodecoder/0.2.0.1/include
+        vendor/videodecoder/0.2.0.1/include)
+
+find_library(PANEL_AIDL_LIBRARY
+    NAMES panel-v0.1.0.0-cpp
+    PATHS ${CMAKE_SYSROOT}/usr/lib
+    PATH_SUFFIXES mw/rdk-halif-aidl vendor/rdk-halif-aidl)
+find_library(VIDEODECODER_AIDL_LIBRARY
+    NAMES videodecoder-v0.2.0.1-cpp
+    PATHS ${CMAKE_SYSROOT}/usr/lib
+    PATH_SUFFIXES mw/rdk-halif-aidl vendor/rdk-halif-aidl)
+
+if(HDMIOUTPUT_AIDL_INCLUDE_DIR
+        AND PANEL_AIDL_INCLUDE_DIR
+        AND VIDEODECODER_AIDL_INCLUDE_DIR
+        AND COMMON_AIDL_INCLUDE_DIR
+        AND ANDROID_BINDER_INCLUDE_DIR
+        AND HDMIOUTPUT_AIDL_LIBRARY
+        AND PANEL_AIDL_LIBRARY
+        AND VIDEODECODER_AIDL_LIBRARY
+        AND COMMON_AIDL_LIBRARY
+        AND ANDROID_BINDER_LIBRARY
+        AND ANDROID_UTILS_LIBRARY)
+    message(STATUS "Enabling Display AIDL HAL support")
+    target_sources(${PLUGIN_IMPLEMENTATION} PRIVATE hal/dDisplayAIDLImpl.cpp)
+    target_compile_definitions(${PLUGIN_IMPLEMENTATION} PRIVATE ENABLE_DISPLAY_AIDL)
+    target_include_directories(${PLUGIN_IMPLEMENTATION} PRIVATE
+        ${HDMIOUTPUT_AIDL_INCLUDE_DIR}
+        ${PANEL_AIDL_INCLUDE_DIR}
+        ${VIDEODECODER_AIDL_INCLUDE_DIR}
+        ${COMMON_AIDL_INCLUDE_DIR}
+        ${ANDROID_BINDER_INCLUDE_DIR})
+    target_link_libraries(${PLUGIN_IMPLEMENTATION} PRIVATE
+        ${HDMIOUTPUT_AIDL_LIBRARY}
+        ${PANEL_AIDL_LIBRARY}
+        ${VIDEODECODER_AIDL_LIBRARY}
+        ${COMMON_AIDL_LIBRARY}
+        ${ANDROID_BINDER_LIBRARY}
+        ${ANDROID_UTILS_LIBRARY})
+    set_target_properties(${PLUGIN_IMPLEMENTATION} PROPERTIES CXX_STANDARD 17)
+else()
+    message(STATUS "Display AIDL HAL artifacts (hdmioutput/panel/videodecoder) not found; Display will use DS HAL only")
+endif()
+
 #if(RDK_SERVICES_L1_TEST OR RDK_SERVICE_L2_TEST)
 #
 #    target_compile_definitions(${PLUGIN_IMPLEMENTATION}

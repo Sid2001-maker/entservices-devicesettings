@@ -325,7 +325,7 @@ public:
 
         // Validate input parameters
         if (type < 0 || index < 0) {
-            DSLOG_ERR(" FAILED - Invalid parameters, type=%d, index=%d", type, index);
+            DSLOG_ERR(" FAILGetDisplayEdidED - Invalid parameters, type=%d, index=%d", type, index);
             return WPEFramework::Core::ERROR_BAD_REQUEST;
         }
 
